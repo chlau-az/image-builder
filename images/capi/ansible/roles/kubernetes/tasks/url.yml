@@ -52,12 +52,14 @@
     path: /tmp/cni.tar.gz
 
 - name: Download Kubernetes binaries
-  get_url:
-    url: "{{ kubernetes_http_source }}/{{ kubernetes_semver }}/bin/linux/{{ kubernetes_goarch }}/{{ item }}"
-    # TODO(akutz) Write a script to separately download the checksum
-    #             and verify the associated file using the correct
-    #             checksum file format
-    #checksum: "sha1:{{ kubernetes_http_source }}/bin/linux/amd64/{{ item }}.sha1"
+  unarchive:
+    src: "{{ kubernetes_http_source }}/{{ kubernetes_semver }}-azs/binaries/kubernetes-node-linux-{{ kubernetes_goarch }}.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy Kubernetes binaries
+  copy:
+    src: /tmp/kubernetes/node/bin/{{ item }}
     dest: "/usr/bin/{{ item }}"
     mode: 0755
     owner: root
@@ -66,7 +68,7 @@
 
 - name: Download Kubernetes images
   get_url:
-    url: "{{ kubernetes_http_source }}/{{ kubernetes_semver }}/bin/linux/{{ kubernetes_goarch }}/{{ item }}"
+    url: "{{ kubernetes_http_source }}/{{ kubernetes_semver }}-azs/images/linux/{{ kubernetes_goarch }}/{{ item }}"
     # TODO(akutz) Write a script to separately download the checksum
     #             and verify the associated file using the correct
     #             checksum file format
